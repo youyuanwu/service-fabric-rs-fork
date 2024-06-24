@@ -76,9 +76,11 @@ impl StatefulServiceFactory for Factory {
             settings.ReplicatorAddress
         );
 
+        let dbname = get_service_name(servicename.to_string()).expect("servicename is irregular");
+
         let handler: IFabricStoreEventHandler = DummyStoreEventHandler {}.into();
         let kv = create_com_key_value_store_replica(
-            &HSTRING::from("mystorename"),
+            &HSTRING::from(dbname.clone()),
             *partitionid,
             replicaid,
             &settings,
@@ -89,7 +91,7 @@ impl StatefulServiceFactory for Factory {
         let kv_replica: IFabricStatefulServiceReplica = kv.clone().cast().unwrap();
         let proxy = StatefulServiceReplicaProxy::new(kv_replica);
 
-        let svc = Service::new(kv, self.rt.clone());
+        let svc = Service::new(kv, self.rt.clone(), dbname);
 
         let replica = Replica::new(proxy, svc);
         Ok(replica)
@@ -112,14 +114,16 @@ pub struct Service {
     kvproxy: KVStoreProxy,
     rt: DefaultExecutor,
     tx: Mutex<Cell<Option<Sender<()>>>>,
+    dbname: String
 }
 
 impl Service {
-    pub fn new(com: IFabricKeyValueStoreReplica2, rt: DefaultExecutor) -> Service {
+    pub fn new(com: IFabricKeyValueStoreReplica2, rt: DefaultExecutor, dbname: String) -> Service {
         Service {
             kvproxy: KVStoreProxy::new(com),
             rt,
             tx: Mutex::new(Cell::new(None)),
+            dbname
         }
     }
 
@@ -128,10 +132,11 @@ impl Service {
         let kv = self.kvproxy.clone();
         self.stop();
         self.tx.lock().unwrap().set(Some(tx));
+        let dbname = self.dbname.clone();
         self.rt.spawn(async move {
             let mut counter = 0;
             loop {
-                info!("Service::run_single: {}", counter);
+                info!("Service::run_single for db {}: {}", dbname, counter);
                 let res = Self::run_single(&kv).await;
                 match res {
                     Ok(_) => info!("run_single success"),
@@ -208,5 +213,28 @@ impl StatefulServiceReplica for Replica {
         info!("Replica::abort");
         self.svc.stop();
         self.kv.abort();
+    }
+}
+
+// returns the service name
+// fabric:/KvStore/KvStoreService -> KvStoreService
+fn get_service_name(url: String) -> Option<String>{
+    let parts = url.split('/').collect::<Vec<_>>();
+    if parts.len() != 3{
+        None
+    }else{
+        Some(parts[2].to_owned())
+    }
+}
+
+#[cfg(test)]
+mod test{
+    use super::get_service_name;
+
+    #[test]
+    fn url_parse(){
+        let url = "fabric:/KvStore/KvStoreService";
+        let name = get_service_name(url.to_owned()).unwrap();
+        assert_eq!(name, "KvStoreService");
     }
 }
