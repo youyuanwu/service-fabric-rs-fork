@@ -25,7 +25,7 @@ pub mod client;
 #[cfg(feature = "config_source")]
 pub mod conf;
 pub mod debug;
-mod iter;
+pub mod iter;
 pub mod runtime;
 pub mod strings;
 #[cfg(feature = "tokio_async")]
