@@ -59,7 +59,7 @@ impl<T> BridgeContext<T> {
     // }
 }
 
-impl<T> IFabricAsyncOperationContext_Impl for BridgeContext<T> {
+impl<T> IFabricAsyncOperationContext_Impl for BridgeContext_Impl<T> {
     fn IsCompleted(&self) -> ::windows::Win32::Foundation::BOOLEAN {
         self.is_completed.get().into()
     }

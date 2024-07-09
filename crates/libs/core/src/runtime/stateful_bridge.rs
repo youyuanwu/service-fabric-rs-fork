@@ -12,9 +12,7 @@ use windows::core::implement;
 use windows_core::{AsImpl, Error, Interface, HSTRING};
 
 use mssf_com::{
-    FabricCommon::{
-        IFabricAsyncOperationContext, IFabricAsyncOperationContext_Impl, IFabricStringResult,
-    },
+    FabricCommon::{IFabricAsyncOperationContext, IFabricStringResult},
     FabricRuntime::{
         IFabricPrimaryReplicator, IFabricPrimaryReplicator_Impl, IFabricReplicator,
         IFabricReplicator_Impl, IFabricStatefulServiceFactory, IFabricStatefulServiceFactory_Impl,
@@ -61,7 +59,7 @@ where
     }
 }
 
-impl<E, F> IFabricStatefulServiceFactory_Impl for StatefulServiceFactoryBridge<E, F>
+impl<E, F> IFabricStatefulServiceFactory_Impl for StatefulServiceFactoryBridge_Impl<E, F>
 where
     E: Executor,
     F: StatefulServiceFactory,
@@ -135,7 +133,7 @@ where
     }
 }
 
-impl<E, R> IFabricReplicator_Impl for IFabricReplicatorBridge<E, R>
+impl<E, R> IFabricReplicator_Impl for IFabricReplicatorBridge_Impl<E, R>
 where
     E: Executor,
     R: Replicator,
@@ -156,7 +154,7 @@ where
             let ok = inner_cp.open().await;
             let ctx_bridge: &BridgeContext<Result<HSTRING, Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -198,7 +196,7 @@ where
             let ok = inner_cp.change_role(&epoch2, &role2).await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -237,7 +235,7 @@ where
             let ok = inner_cp.update_epoch(&epoch2).await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -270,7 +268,7 @@ where
             let ok = inner_cp.close().await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -314,7 +312,7 @@ where
 {
     inner: Arc<P>,
     rt: E,
-    rplctr: IFabricReplicatorBridge<E, P>,
+    rplctr: IFabricReplicator,
 }
 
 impl<E, P> IFabricPrimaryReplicatorBridge<E, P>
@@ -340,13 +338,13 @@ where
         IFabricPrimaryReplicatorBridge {
             inner,
             rt,
-            rplctr: replicator_bridge,
+            rplctr: replicator_bridge.into(),
         }
     }
 }
 
 // TODO: this impl has duplicate code with replicator bridge
-impl<E, P> IFabricReplicator_Impl for IFabricPrimaryReplicatorBridge<E, P>
+impl<E, P> IFabricReplicator_Impl for IFabricPrimaryReplicatorBridge_Impl<E, P>
 where
     E: Executor,
     P: PrimaryReplicator,
@@ -355,75 +353,77 @@ where
         &self,
         callback: ::core::option::Option<&super::IFabricAsyncOperationCallback>,
     ) -> ::windows_core::Result<super::IFabricAsyncOperationContext> {
-        self.rplctr.BeginOpen(callback)
+        unsafe { self.rplctr.BeginOpen(callback) }
     }
 
     fn EndOpen(
         &self,
         context: ::core::option::Option<&super::IFabricAsyncOperationContext>,
     ) -> ::windows_core::Result<IFabricStringResult> {
-        self.rplctr.EndOpen(context)
+        unsafe { self.rplctr.EndOpen(context) }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn BeginChangeRole(
         &self,
         epoch: *const FABRIC_EPOCH,
         role: FABRIC_REPLICA_ROLE,
         callback: ::core::option::Option<&super::IFabricAsyncOperationCallback>,
     ) -> ::windows_core::Result<super::IFabricAsyncOperationContext> {
-        self.rplctr.BeginChangeRole(epoch, role, callback)
+        unsafe { self.rplctr.BeginChangeRole(epoch, role, callback) }
     }
 
     fn EndChangeRole(
         &self,
         context: ::core::option::Option<&super::IFabricAsyncOperationContext>,
     ) -> ::windows_core::Result<()> {
-        self.rplctr.EndChangeRole(context)
+        unsafe { self.rplctr.EndChangeRole(context) }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn BeginUpdateEpoch(
         &self,
         epoch: *const FABRIC_EPOCH,
         callback: ::core::option::Option<&super::IFabricAsyncOperationCallback>,
     ) -> ::windows_core::Result<super::IFabricAsyncOperationContext> {
-        self.rplctr.BeginUpdateEpoch(epoch, callback)
+        unsafe { self.rplctr.BeginUpdateEpoch(epoch, callback) }
     }
 
     fn EndUpdateEpoch(
         &self,
         context: ::core::option::Option<&super::IFabricAsyncOperationContext>,
     ) -> ::windows_core::Result<()> {
-        self.rplctr.EndUpdateEpoch(context)
+        unsafe { self.rplctr.EndUpdateEpoch(context) }
     }
 
     fn BeginClose(
         &self,
         callback: ::core::option::Option<&super::IFabricAsyncOperationCallback>,
     ) -> ::windows_core::Result<super::IFabricAsyncOperationContext> {
-        self.rplctr.BeginClose(callback)
+        unsafe { self.rplctr.BeginClose(callback) }
     }
 
     fn EndClose(
         &self,
         context: ::core::option::Option<&super::IFabricAsyncOperationContext>,
     ) -> ::windows_core::Result<()> {
-        self.rplctr.EndClose(context)
+        unsafe { self.rplctr.EndClose(context) }
     }
 
     fn Abort(&self) {
-        self.rplctr.Abort()
+        unsafe { self.rplctr.Abort() }
     }
 
     fn GetCurrentProgress(&self) -> ::windows_core::Result<i64> {
-        self.rplctr.GetCurrentProgress()
+        unsafe { self.rplctr.GetCurrentProgress() }
     }
 
     fn GetCatchUpCapability(&self) -> ::windows_core::Result<i64> {
-        self.rplctr.GetCatchUpCapability()
+        unsafe { self.rplctr.GetCatchUpCapability() }
     }
 }
 
-impl<E, P> IFabricPrimaryReplicator_Impl for IFabricPrimaryReplicatorBridge<E, P>
+impl<E, P> IFabricPrimaryReplicator_Impl for IFabricPrimaryReplicatorBridge_Impl<E, P>
 where
     E: Executor,
     P: PrimaryReplicator,
@@ -444,7 +444,7 @@ where
             let ok = inner_cp.on_data_loss().await;
             let ctx_bridge: &BridgeContext<Result<u8, Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -493,7 +493,7 @@ where
             let ok = inner_cp.wait_for_catch_up_quorum(catchupmode.into()).await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -541,7 +541,7 @@ where
             let ok = inner_cp.build_replica(&r).await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -588,7 +588,7 @@ where
     }
 }
 
-impl<E, R> IFabricStatefulServiceReplica_Impl for IFabricStatefulServiceReplicaBridge<E, R>
+impl<E, R> IFabricStatefulServiceReplica_Impl for IFabricStatefulServiceReplicaBridge_Impl<E, R>
 where
     E: Executor,
     R: StatefulServiceReplica,
@@ -629,7 +629,7 @@ where
                 unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(com);
             ctx_bridge.set_complete();
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -667,7 +667,7 @@ where
             let ok = inner_cp.change_role(newrole2).await;
             let ctx_bridge: &BridgeContext<Result<HSTRING, Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -699,7 +699,7 @@ where
             let ok = inner_cp.close().await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)

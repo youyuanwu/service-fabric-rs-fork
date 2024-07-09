@@ -12,9 +12,7 @@ use crate::{
     strings::HSTRINGWrap,
 };
 use mssf_com::{
-    FabricCommon::{
-        IFabricAsyncOperationContext, IFabricAsyncOperationContext_Impl, IFabricStringResult,
-    },
+    FabricCommon::{IFabricAsyncOperationContext, IFabricStringResult},
     FabricRuntime::{
         IFabricStatelessServiceFactory, IFabricStatelessServiceFactory_Impl,
         IFabricStatelessServiceInstance, IFabricStatelessServiceInstance_Impl,
@@ -51,7 +49,7 @@ where
     }
 }
 
-impl<E, F> IFabricStatelessServiceFactory_Impl for StatelessServiceFactoryBridge<E, F>
+impl<E, F> IFabricStatelessServiceFactory_Impl for StatelessServiceFactoryBridge_Impl<E, F>
 where
     E: Executor,
     F: StatelessServiceFactory,
@@ -120,7 +118,7 @@ where
     }
 }
 
-impl<E, S> IFabricStatelessServiceInstance_Impl for IFabricStatelessServiceInstanceBridge<E, S>
+impl<E, S> IFabricStatelessServiceInstance_Impl for IFabricStatelessServiceInstanceBridge_Impl<E, S>
 where
     E: Executor,
     S: StatelessServiceInstance + 'static,
@@ -145,7 +143,7 @@ where
             let ok = inner_cp.open(&partition_bridge).await;
             let ctx_bridge: &BridgeContext<Result<HSTRING, Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)
@@ -179,7 +177,7 @@ where
             let ok = inner_cp.close().await;
             let ctx_bridge: &BridgeContext<Result<(), Error>> = unsafe { ctx_cpy.as_impl() };
             ctx_bridge.set_content(ok);
-            let cb = ctx_bridge.Callback().unwrap();
+            let cb = unsafe { ctx_cpy.Callback().unwrap() };
             unsafe { cb.Invoke(&ctx_cpy) };
         });
         Ok(ctx)

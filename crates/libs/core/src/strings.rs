@@ -22,7 +22,7 @@ impl StringResult {
     }
 }
 
-impl IFabricStringResult_Impl for StringResult {
+impl IFabricStringResult_Impl for StringResult_Impl {
     fn get_String(&self) -> windows::core::PCWSTR {
         // This is some hack to get the raw pointer out.
         windows::core::PCWSTR::from_raw(self.data.as_ptr())

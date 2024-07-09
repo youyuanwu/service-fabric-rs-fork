@@ -58,7 +58,7 @@ impl StatefulServiceFactory {
     }
 }
 
-impl IFabricStatefulServiceFactory_Impl for StatefulServiceFactory {
+impl IFabricStatefulServiceFactory_Impl for StatefulServiceFactory_Impl {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn CreateReplica(
         &self,
@@ -110,7 +110,7 @@ impl AppFabricReplicator {
 }
 
 // This is basic implementation of Replicator
-impl IFabricReplicator_Impl for AppFabricReplicator {
+impl IFabricReplicator_Impl for AppFabricReplicator_Impl {
     fn BeginOpen(
         &self,
         callback: ::core::option::Option<&IFabricAsyncOperationCallback>,
@@ -205,7 +205,7 @@ impl IFabricReplicator_Impl for AppFabricReplicator {
 }
 
 // This is basic implementation of PrimaryReplicator
-impl IFabricPrimaryReplicator_Impl for AppFabricReplicator {
+impl IFabricPrimaryReplicator_Impl for AppFabricReplicator_Impl {
     fn BeginOnDataLoss(
         &self,
         callback: ::core::option::Option<&IFabricAsyncOperationCallback>,
@@ -308,7 +308,7 @@ impl AppInstance {
     }
 }
 
-impl IFabricStatefulServiceReplica_Impl for AppInstance {
+impl IFabricStatefulServiceReplica_Impl for AppInstance_Impl {
     fn BeginOpen(
         &self,
         openmode: FABRIC_REPLICA_OPEN_MODE,

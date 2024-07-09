@@ -50,7 +50,7 @@ where
     callback: Cell<Option<F>>,
 }
 
-impl<F: Callback> IFabricAsyncOperationCallback_Impl for AwaitableCallback2<F> {
+impl<F: Callback> IFabricAsyncOperationCallback_Impl for AwaitableCallback2_Impl<F> {
     // notify the function has been invoked.
     fn Invoke(&self, context: ::core::option::Option<&IFabricAsyncOperationContext>) {
         let cb_opt = self.callback.take();
@@ -201,7 +201,7 @@ mod tests {
         }
     }
 
-    impl IFabricAsyncOperationCallback_Impl for AwaitableCallback {
+    impl IFabricAsyncOperationCallback_Impl for AwaitableCallback_Impl {
         // notify the function has been invoked.
         fn Invoke(&self, _context: ::core::option::Option<&IFabricAsyncOperationContext>) {
             let tx = self.tx.take();
