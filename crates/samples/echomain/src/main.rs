@@ -6,7 +6,10 @@
 // This example app shows how to use SF safe API (mssf_core)
 // to create a SF stateless application.
 
+use std::sync::Mutex;
+
 use mssf_core::conf::{Config, FabricConfigSource};
+use mssf_core::debug::health_log::LogAsHealth;
 use mssf_core::debug::wait_for_debugger;
 use mssf_core::runtime::executor::{DefaultExecutor, Executor};
 use mssf_core::runtime::node_context::NodeContext;
@@ -34,14 +37,34 @@ fn has_debug_arg() -> bool {
 }
 
 fn main() -> mssf_core::Result<()> {
-    tracing_subscriber::fmt().init();
+    let actctx = CodePackageActivationContext::create().inspect_err(|e| {
+        error!("Fail to create activation context: {e}");
+    })?;
+    let sf_health_log = LogAsHealth::new(actctx.clone());
+    use tracing_subscriber::layer::SubscriberExt;
+    let registry = tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::builder()
+                .with_default_directive(tracing::level_filters::LevelFilter::INFO.into())
+                .from_env_lossy(),
+        )
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_writer(Mutex::new(sf_health_log))
+                .with_ansi(false),
+        )
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_writer(std::io::stdout)
+                .with_ansi(false),
+        );
+    tracing::subscriber::set_global_default(registry).expect("Setting default global subscriber");
+
     info!("echomain start");
     if has_debug_arg() {
         wait_for_debugger();
     }
-    let actctx = CodePackageActivationContext::create().inspect_err(|e| {
-        error!("Fail to create activation context: {e}");
-    })?;
+
     validate_configs(&actctx);
 
     let code_info = actctx.get_code_package_info();

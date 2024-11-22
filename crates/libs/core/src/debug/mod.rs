@@ -3,6 +3,8 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+pub mod health_log;
+
 #[cfg(target_os = "windows")]
 pub fn wait_for_debugger() {
     loop {

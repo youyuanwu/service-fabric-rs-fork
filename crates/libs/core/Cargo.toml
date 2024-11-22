@@ -24,6 +24,7 @@ bundled_libs = ["mssf-com/bundled_libs"]
 
 [dependencies]
 tracing.workspace = true
+tracing-subscriber.workspace = true
 tokio = { version = "1", features = ["sync" , "rt-multi-thread", "rt", "macros"], optional = true }
 tokio-util = { version = "0.7", optional = true }
 windows-core = "0.57"
