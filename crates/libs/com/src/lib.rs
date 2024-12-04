@@ -6,10 +6,10 @@
 #![doc(html_no_source)]
 // extern crate windows;
 #![allow(non_snake_case)]
-pub mod ServiceFabric;
+pub mod Microsoft;
 
 // expose mod directly
-pub use ServiceFabric::*;
+pub use Microsoft::ServiceFabric::*;
 
 #[cfg(all(target_os = "windows", feature = "bundled_libs"))]
 pub use mssf_metadata;

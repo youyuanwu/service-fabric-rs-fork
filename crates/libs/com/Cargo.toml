@@ -33,7 +33,6 @@ windows-core = "0.58"
 version = "0.58"
 features = [
     "Win32_Foundation",
-    "implement"
 ]
 
 [features]

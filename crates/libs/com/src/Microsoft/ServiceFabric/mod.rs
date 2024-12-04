@@ -4,7 +4,7 @@
 // ------------------------------------------------------------
 
 // pub mod FabricClient;
-// pub mod FabricCommon;
+pub mod FabricCommon;
 // pub mod FabricRuntime;
 // pub mod FabricTransport;
 pub mod FabricTypes;
