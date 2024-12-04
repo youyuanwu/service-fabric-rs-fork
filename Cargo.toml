@@ -5,6 +5,7 @@ members = [
     # "crates/samples/*",
     "crates/libs/pal",
     "crates/libs/com",
+    "crates/libs/comtwo",
 ]
 
 [workspace.dependencies]

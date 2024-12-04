@@ -11,110 +11,136 @@ use windows_bindgen::bindgen;
 
 fn main() {
     let winmd = "./build/_deps/fabric_metadata-src/.windows/winmd/Microsoft.ServiceFabric.winmd";
-    // let winmd = "./build/_deps/fabric_metadata-src/.windows/winmd/";
-    // create output dir if not exist
-    fs::create_dir_all("crates/libs/com/src/Microsoft/ServiceFabric/").unwrap();
-    // Generate FabricTypes
-    {
-        let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricTypes.rs";
-        bindgen([
-            "--in",
-            winmd,
-            "--in",
-            "default",
-            "--out",
-            out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricTypes", // include fabric types
-            "--reference",
-            "windows,skip-root,Windows",
-        ]);
-        // TODO: need to modify the generated files.
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod Microsoft ");
-        remove_namespace(&mut lines, "pub mod ServiceFabric ");
-        remove_namespace(&mut lines, "pub mod FabricTypes ");
-        write_content(out_file, lines);
-    }
-    // Generate FabricCommon
-    {
-        let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricCommon.rs";
-        bindgen([
-            "--in",
-            winmd,
-            "--in",
-            "default",
-            "--out",
-            out_file,
-            // include types
-            "--filter",
-            "Microsoft.ServiceFabric.FabricCommon",
-            "--reference",
-            "windows,skip-root,Windows",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricTypes",
-        ]);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod Microsoft");
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricCommon");
-        write_content(out_file, lines);
-    }
-    // Generate FabricRuntime
-    {
-        let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricRuntime.rs";
-        bindgen([
-            "--in",
-            winmd,
-            "--in",
-            "default",
-            "--out",
-            out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricRuntime", // include fabric types
-            "--reference",
-            "windows,skip-root,Windows",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricTypes",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricCommon",
-        ]);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod Microsoft");
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricRuntime");
-        write_content(out_file, lines);
-    }
+    // // let winmd = "./build/_deps/fabric_metadata-src/.windows/winmd/";
+    // // create output dir if not exist
+    // fs::create_dir_all("crates/libs/com/src/Microsoft/ServiceFabric/").unwrap();
+    // // Generate FabricTypes
+    // {
+    //     let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricTypes.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--in",
+    //         "default",
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricTypes", // include fabric types
+    //         "--reference",
+    //         "windows,skip-root,Windows",
+    //     ]);
+    //     // TODO: need to modify the generated files.
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod Microsoft ");
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric ");
+    //     remove_namespace(&mut lines, "pub mod FabricTypes ");
+    //     write_content(out_file, lines);
+    // }
+    // // Generate FabricCommon
+    // {
+    //     let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricCommon.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--in",
+    //         "default",
+    //         "--out",
+    //         out_file,
+    //         // include types
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricCommon",
+    //         "--reference",
+    //         "windows,skip-root,Windows",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricTypes",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod Microsoft");
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricCommon");
+    //     write_content(out_file, lines);
+    // }
+    // // Generate FabricRuntime
+    // {
+    //     let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricRuntime.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--in",
+    //         "default",
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricRuntime", // include fabric types
+    //         "--reference",
+    //         "windows,skip-root,Windows",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricTypes",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricCommon",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod Microsoft");
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricRuntime");
+    //     write_content(out_file, lines);
+    // }
 
-    // Generate FabricClient
-    {
-        let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricClient.rs";
-        bindgen([
-            "--in",
-            winmd,
-            "--in",
-            "default",
-            "--out",
-            out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricClient", // include fabric types
-            "--reference",
-            "windows,skip-root,Windows",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricTypes",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricCommon",
-        ]);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod Microsoft");
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricClient");
-        write_content(out_file, lines);
-    }
+    // // Generate FabricClient
+    // {
+    //     let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricClient.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--in",
+    //         "default",
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricClient", // include fabric types
+    //         "--reference",
+    //         "windows,skip-root,Windows",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricTypes",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricCommon",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod Microsoft");
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricClient");
+    //     write_content(out_file, lines);
+    // }
 
-    // Generate FabricTransport
+    // // Generate FabricTransport
+    // {
+    //     let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricTransport.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--in",
+    //         "default",
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricTransport", // include fabric types
+    //         "--reference",
+    //         "windows,skip-root,Windows",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricTypes",
+    //         "--reference",
+    //         "crate,full,Microsoft.ServiceFabric.FabricCommon",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod Microsoft");
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricTransport");
+    //     write_content(out_file, lines);
+    // }
+
+    // temp test:
     {
-        let out_file = "crates/libs/com/src/Microsoft/ServiceFabric/FabricTransport.rs";
+        let out_file = "crates/libs/comtwo/";
         bindgen([
             "--in",
             winmd,
@@ -122,20 +148,13 @@ fn main() {
             "default",
             "--out",
             out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricTransport", // include fabric types
+            "--package",
+            "--no-allow",
             "--reference",
             "windows,skip-root,Windows",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricTypes",
-            "--reference",
-            "crate,full,Microsoft.ServiceFabric.FabricCommon",
+            "--filter",
+            "Microsoft",
         ]);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod Microsoft");
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricTransport");
-        write_content(out_file, lines);
     }
 }
 
