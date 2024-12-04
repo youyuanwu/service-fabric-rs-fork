@@ -7,112 +7,108 @@ use std::{
     io::{self, BufRead, Write},
 };
 
-use windows_bindgen::{bindgen, Result};
+use windows_bindgen::bindgen;
 
-fn main() -> Result<()> {
+fn main() {
     let winmd = "./build/_deps/fabric_metadata-src/.windows/winmd/Microsoft.ServiceFabric.winmd";
+    // let winmd = "./build/_deps/fabric_metadata-src/.windows/winmd/";
     // create output dir if not exist
     fs::create_dir_all("crates/libs/com/src/ServiceFabric/").unwrap();
     // Generate FabricTypes
     {
         let out_file = "crates/libs/com/src/ServiceFabric/FabricTypes.rs";
-        let log = bindgen([
+        bindgen([
             "--in",
             winmd,
+            "--in",
+            "default",
             "--out",
             out_file,
             "--filter",
             "Microsoft.ServiceFabric.FabricTypes", // include fabric types
-            "--config",
-            "implement",
-        ])?;
-        println!("{}", log);
+            "--reference",
+            "windows,skip-root,Windows",
+        ]);
         // TODO: need to modify the generated files.
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod ServiceFabric ");
-        remove_namespace(&mut lines, "pub mod FabricTypes ");
-        write_content(out_file, lines);
+        // let mut lines = read_file_as_lines(out_file);
+        // remove_namespace(&mut lines, "pub mod Microsoft ");
+        // remove_namespace(&mut lines, "pub mod ServiceFabric ");
+        // remove_namespace(&mut lines, "pub mod FabricTypes ");
+        // write_content(out_file, lines);
     }
-    // Generate FabricCommon
-    {
-        let out_file = "crates/libs/com/src/ServiceFabric/FabricCommon.rs";
-        let log = bindgen([
-            "--in",
-            winmd,
-            "--out",
-            out_file,
-            // include types
-            "--filter",
-            "Microsoft.ServiceFabric.FabricCommon",
-            "--config",
-            "implement",
-        ])?;
-        println!("{}", log);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricCommon");
-        write_content(out_file, lines);
-    }
-    // Generate FabricRuntime
-    {
-        let out_file = "crates/libs/com/src/ServiceFabric/FabricRuntime.rs";
-        let log = bindgen([
-            "--in",
-            winmd,
-            "--out",
-            out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricRuntime", // include fabric types
-            "--config",
-            "implement",
-        ])?;
-        println!("{}", log);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricRuntime");
-        write_content(out_file, lines);
-    }
+    // // Generate FabricCommon
+    // {
+    //     let out_file = "crates/libs/com/src/ServiceFabric/FabricCommon.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--out",
+    //         out_file,
+    //         // include types
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricCommon",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricCommon");
+    //     write_content(out_file, lines);
+    // }
+    // // Generate FabricRuntime
+    // {
+    //     let out_file = "crates/libs/com/src/ServiceFabric/FabricRuntime.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricRuntime", // include fabric types
+    //         "--config",
+    //         "implement",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricRuntime");
+    //     write_content(out_file, lines);
+    // }
 
-    // Generate FabricClient
-    {
-        let out_file = "crates/libs/com/src/ServiceFabric/FabricClient.rs";
-        let log = bindgen([
-            "--in",
-            winmd,
-            "--out",
-            out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricClient", // include fabric types
-            "--config",
-            "implement",
-        ])?;
-        println!("{}", log);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricClient");
-        write_content(out_file, lines);
-    }
+    // // Generate FabricClient
+    // {
+    //     let out_file = "crates/libs/com/src/ServiceFabric/FabricClient.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricClient", // include fabric types
+    //         "--config",
+    //         "implement",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricClient");
+    //     write_content(out_file, lines);
+    // }
 
-    // Generate FabricTransport
-    {
-        let out_file = "crates/libs/com/src/ServiceFabric/FabricTransport.rs";
-        let log = bindgen([
-            "--in",
-            winmd,
-            "--out",
-            out_file,
-            "--filter",
-            "Microsoft.ServiceFabric.FabricTransport", // include fabric types
-            "--config",
-            "implement",
-        ])?;
-        println!("{}", log);
-        let mut lines = read_file_as_lines(out_file);
-        remove_namespace(&mut lines, "pub mod ServiceFabric");
-        remove_namespace(&mut lines, "pub mod FabricTransport");
-        write_content(out_file, lines);
-    }
-    Ok(())
+    // // Generate FabricTransport
+    // {
+    //     let out_file = "crates/libs/com/src/ServiceFabric/FabricTransport.rs";
+    //     bindgen([
+    //         "--in",
+    //         winmd,
+    //         "--out",
+    //         out_file,
+    //         "--filter",
+    //         "Microsoft.ServiceFabric.FabricTransport", // include fabric types
+    //         "--config",
+    //         "implement",
+    //     ]);
+    //     let mut lines = read_file_as_lines(out_file);
+    //     remove_namespace(&mut lines, "pub mod ServiceFabric");
+    //     remove_namespace(&mut lines, "pub mod FabricTransport");
+    //     write_content(out_file, lines);
+    // }
 }
 
 fn read_file_as_lines(path: &str) -> Vec<String> {

@@ -2,8 +2,9 @@
 resolver = "2"
 members = [
     "crates/tools/*",
-    "crates/samples/*",
-    "crates/libs/*"
+    # "crates/samples/*",
+    "crates/libs/pal",
+    "crates/libs/com",
 ]
 
 [workspace.dependencies]
@@ -20,3 +21,8 @@ serde_derive = "*"
 # crates in this repo
 mssf-com = { path = "./crates/libs/com" }
 mssf-core = { path = "./crates/libs/core", default-features = true}
+
+
+# testing code not released in crates yet
+[patch.crates-io]
+windows-bindgen = { git = "https://github.com/microsoft/windows-rs.git", rev = "b7c2cd5031ba952bc6d072d6641a9a5444ac912d"}
