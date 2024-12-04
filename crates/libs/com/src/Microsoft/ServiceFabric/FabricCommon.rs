@@ -11,12 +11,12 @@
 #[inline]
 pub unsafe fn FabricDecryptText<P0>(
     encryptedtext: P0,
-    certstorelocation: crate::ServiceFabric::FabricTypes::FABRIC_X509_STORE_LOCATION,
+    certstorelocation: crate::Microsoft::ServiceFabric::FabricTypes::FABRIC_X509_STORE_LOCATION,
 ) -> windows_core::Result<IFabricStringResult>
 where
     P0: windows_core::Param<windows_core::PCWSTR>,
 {
-    windows_targets::link!("fabriccommon" "system" fn FabricDecryptText(encryptedtext : windows_core::PCWSTR, certstorelocation : crate::ServiceFabric::FabricTypes:: FABRIC_X509_STORE_LOCATION, decryptedtext : *mut * mut core::ffi::c_void) -> windows_core::HRESULT);
+    windows_targets::link!("fabriccommon" "system" fn FabricDecryptText(encryptedtext : windows_core::PCWSTR, certstorelocation : crate::Microsoft::ServiceFabric::FabricTypes:: FABRIC_X509_STORE_LOCATION, decryptedtext : *mut * mut core::ffi::c_void) -> windows_core::HRESULT);
     let mut result__ = core::mem::zeroed();
     FabricDecryptText(
         encryptedtext.param().abi(),
@@ -42,7 +42,7 @@ pub unsafe fn FabricEncryptText<P0, P1, P2, P4>(
     text: P0,
     certthumbprint: P1,
     certstorename: P2,
-    certstorelocation: crate::ServiceFabric::FabricTypes::FABRIC_X509_STORE_LOCATION,
+    certstorelocation: crate::Microsoft::ServiceFabric::FabricTypes::FABRIC_X509_STORE_LOCATION,
     algorithmoid: P4,
 ) -> windows_core::Result<IFabricStringResult>
 where
@@ -51,7 +51,7 @@ where
     P2: windows_core::Param<windows_core::PCWSTR>,
     P4: windows_core::Param<windows_core::PCSTR>,
 {
-    windows_targets::link!("fabriccommon" "system" fn FabricEncryptText(text : windows_core::PCWSTR, certthumbprint : windows_core::PCWSTR, certstorename : windows_core::PCWSTR, certstorelocation : crate::ServiceFabric::FabricTypes:: FABRIC_X509_STORE_LOCATION, algorithmoid : windows_core::PCSTR, encryptedvalue : *mut * mut core::ffi::c_void) -> windows_core::HRESULT);
+    windows_targets::link!("fabriccommon" "system" fn FabricEncryptText(text : windows_core::PCWSTR, certthumbprint : windows_core::PCWSTR, certstorename : windows_core::PCWSTR, certstorelocation : crate::Microsoft::ServiceFabric::FabricTypes:: FABRIC_X509_STORE_LOCATION, algorithmoid : windows_core::PCSTR, encryptedvalue : *mut * mut core::ffi::c_void) -> windows_core::HRESULT);
     let mut result__ = core::mem::zeroed();
     FabricEncryptText(
         text.param().abi(),
@@ -278,18 +278,19 @@ windows_core::imp::interface_hierarchy!(IFabricGetReplicatorStatusResult, window
 impl IFabricGetReplicatorStatusResult {
     pub unsafe fn get_ReplicatorStatus(
         &self,
-    ) -> *mut crate::ServiceFabric::FabricTypes::FABRIC_REPLICATOR_STATUS_QUERY_RESULT {
+    ) -> *mut crate::Microsoft::ServiceFabric::FabricTypes::FABRIC_REPLICATOR_STATUS_QUERY_RESULT
+    {
         (windows_core::Interface::vtable(self).get_ReplicatorStatus)(
             windows_core::Interface::as_raw(self),
         )
     }
 }
 #[repr(C)]
-pub struct IFabricGetReplicatorStatusResult_Vtbl { pub base__ : windows_core::IUnknown_Vtbl , pub get_ReplicatorStatus :unsafe extern "system" fn ( * mut core::ffi::c_void , ) -> *mut crate::ServiceFabric::FabricTypes:: FABRIC_REPLICATOR_STATUS_QUERY_RESULT , }
+pub struct IFabricGetReplicatorStatusResult_Vtbl { pub base__ : windows_core::IUnknown_Vtbl , pub get_ReplicatorStatus :unsafe extern "system" fn ( * mut core::ffi::c_void , ) -> *mut crate::Microsoft::ServiceFabric::FabricTypes:: FABRIC_REPLICATOR_STATUS_QUERY_RESULT , }
 pub trait IFabricGetReplicatorStatusResult_Impl: windows_core::IUnknownImpl {
     fn get_ReplicatorStatus(
         &self,
-    ) -> *mut crate::ServiceFabric::FabricTypes::FABRIC_REPLICATOR_STATUS_QUERY_RESULT;
+    ) -> *mut crate::Microsoft::ServiceFabric::FabricTypes::FABRIC_REPLICATOR_STATUS_QUERY_RESULT;
 }
 impl IFabricGetReplicatorStatusResult_Vtbl {
     pub const fn new<Identity: IFabricGetReplicatorStatusResult_Impl, const OFFSET: isize>() -> Self
@@ -299,7 +300,8 @@ impl IFabricGetReplicatorStatusResult_Vtbl {
             const OFFSET: isize,
         >(
             this: *mut core::ffi::c_void,
-        ) -> *mut crate::ServiceFabric::FabricTypes::FABRIC_REPLICATOR_STATUS_QUERY_RESULT {
+        ) -> *mut crate::Microsoft::ServiceFabric::FabricTypes::FABRIC_REPLICATOR_STATUS_QUERY_RESULT
+        {
             let this: &Identity = &*((this as *const *const ()).offset(OFFSET) as *const Identity);
             IFabricGetReplicatorStatusResult_Impl::get_ReplicatorStatus(this)
         }

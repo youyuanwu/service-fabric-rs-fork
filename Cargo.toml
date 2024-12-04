@@ -28,3 +28,5 @@ mssf-core = { path = "./crates/libs/core", default-features = true}
 windows-bindgen = { git = "https://github.com/microsoft/windows-rs.git", rev = "8ebef12cf50c71cf4b0054fbc4b74cc8c37bc72f"}
 windows = { git = "https://github.com/microsoft/windows-rs.git", rev = "8ebef12cf50c71cf4b0054fbc4b74cc8c37bc72f"}
 windows-core = { git = "https://github.com/microsoft/windows-rs.git", rev = "8ebef12cf50c71cf4b0054fbc4b74cc8c37bc72f"}
+windows-targets = { git = "https://github.com/microsoft/windows-rs.git", rev = "8ebef12cf50c71cf4b0054fbc4b74cc8c37bc72f"}
+
