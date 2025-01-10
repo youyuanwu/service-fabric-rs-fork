@@ -11,7 +11,11 @@
   <DefaultServices>
     <Service Name="StatefulEchoAppService">
       <StatefulService ServiceTypeName="StatefulEchoAppService" TargetReplicaSetSize="3" MinReplicaSetSize="1">
-        <SingletonPartition />
+        <!-- <SingletonPartition /> -->
+        <NamedPartition>
+          <Partition Name="A" />
+          <Partition Name="B" />
+        </NamedPartition>
       </StatefulService>
     </Service>
   </DefaultServices>

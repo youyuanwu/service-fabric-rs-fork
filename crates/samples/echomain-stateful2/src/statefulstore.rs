@@ -284,7 +284,8 @@ impl Service {
         // start the echo server in background
         self.rt.spawn(async move {
             info!("Service: start echo");
-            echo::start_echo(token, port_copy, hostname_copy, partition_cp).await
+            // port conflict.
+            // echo::start_echo(token, port_copy, hostname_copy, partition_cp).await
         });
     }
 
