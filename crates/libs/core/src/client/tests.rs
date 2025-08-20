@@ -9,7 +9,7 @@ use std::time::Duration;
 
 use crate::{WString, client::FabricClient};
 use mssf_com::FabricTypes::FABRIC_E_SERVICE_DOES_NOT_EXIST;
-use tokio_util::sync::CancellationToken;
+use crate::sync::CancellationToken;
 
 use crate::{
     client::svc_mgmt_client::PartitionKeyType,

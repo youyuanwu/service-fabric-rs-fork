@@ -18,7 +18,7 @@ use std::{
     cell::Cell,
     sync::{Arc, Mutex},
 };
-use tokio_util::sync::CancellationToken;
+use mssf_core::sync::CancellationToken;
 use tracing::info;
 
 use crate::echo;

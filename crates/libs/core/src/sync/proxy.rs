@@ -78,7 +78,7 @@ mod test {
 
     use mssf_com::FabricCommon::{IFabricAsyncOperationCallback, IFabricAsyncOperationContext};
     use tokio::{runtime::Handle, select};
-    use tokio_util::sync::CancellationToken;
+    use crate::sync::CancellationToken;
 
     use crate::{
         error::ErrorCode, runtime::executor::Executor, sync::bridge_context::BridgeContext,

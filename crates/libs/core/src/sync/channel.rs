@@ -181,7 +181,7 @@ pub fn oneshot_channel<T>(
 
 #[cfg(test)]
 mod test {
-    use tokio_util::sync::CancellationToken;
+    use crate::sync::CancellationToken;
 
     use crate::{ErrorCode, sync::oneshot_channel};
 

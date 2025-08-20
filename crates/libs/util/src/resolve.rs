@@ -7,7 +7,7 @@ use std::{pin::Pin, time::Duration};
 
 use mssf_core::runtime::executor::Timer;
 use mssf_core::{ErrorCode, WString};
-use tokio_util::sync::CancellationToken;
+use mssf_core::sync::CancellationToken;
 
 use mssf_core::client::{
     FabricClient,

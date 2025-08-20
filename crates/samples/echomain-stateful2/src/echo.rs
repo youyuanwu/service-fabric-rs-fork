@@ -11,7 +11,7 @@ use mssf_core::WString;
 use mssf_core::runtime::stateful_proxy::StatefulServicePartition;
 use mssf_core::types::LoadMetric;
 use tokio::select;
-use tokio_util::sync::CancellationToken;
+use mssf_core::sync::CancellationToken;
 use tracing::{error, info};
 
 pub fn get_addr(port: u32, hostname: WString) -> String {
