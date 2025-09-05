@@ -130,7 +130,7 @@ impl<T> Future for FabricReceiver<T> {
                 match inner {
                     Poll::Ready(_) => {
                         // clear the token since we only propergate the signal once.
-                        this.cancel_event.take();
+                        this.token.take();
                         this.cancel_event.take();
                         // operation cancelled. Propergate to inner sf ctx.
                         if let Err(e) = this.cancel_inner_ctx() {

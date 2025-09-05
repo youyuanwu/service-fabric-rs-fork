@@ -27,6 +27,9 @@ pub use channel::{FabricReceiver, FabricSender, oneshot_channel};
 mod proxy;
 pub use proxy::fabric_begin_end_proxy;
 
+pub(crate) mod fut;
+pub use fut::FabricFuture;
+
 // fabric code begins here
 
 pub trait Callback: FnOnce(windows_core::Ref<IFabricAsyncOperationContext>) + 'static {}

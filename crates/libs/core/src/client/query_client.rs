@@ -20,7 +20,7 @@ use mssf_com::{
 
 use crate::{
     runtime::executor::BoxedCancelToken,
-    sync::{FabricReceiver, fabric_begin_end_proxy},
+    sync::{FabricFuture, FabricReceiver, fabric_begin_end_proxy, fut::FabricFutureImpl},
 };
 use crate::{
     strings::get_pcwstr_from_opt,
@@ -143,15 +143,15 @@ impl From<QueryClient> for IFabricQueryClient10 {
 
 impl QueryClient {
     // List nodes in the cluster
-    pub async fn get_node_list(
+    pub fn get_node_list(
         &self,
         desc: &NodeQueryDescription,
         timeout: Duration,
         cancellation_token: Option<BoxedCancelToken>,
-    ) -> crate::Result<NodeList> {
+    ) -> impl FabricFuture<Output = crate::Result<NodeList>> {
         // Note that the SF raw structs are scoped to avoid having them across await points.
         // This makes api Send. All FabricClient api should follow this pattern.
-        let com = {
+        let rx = {
             let ex3 = FABRIC_NODE_QUERY_DESCRIPTION_EX3 {
                 MaxResults: desc.paged_query.max_results.unwrap_or(0),
                 Reserved: std::ptr::null_mut(),
@@ -176,9 +176,8 @@ impl QueryClient {
                 timeout.as_millis().try_into().unwrap(),
                 cancellation_token,
             )
-        }
-        .await??;
-        Ok(NodeList::from(com))
+        };
+        FabricFutureImpl::new(rx, |res| NodeList::from(res))
     }
 
     pub async fn get_partition_list(
@@ -186,14 +185,13 @@ impl QueryClient {
         desc: &ServicePartitionQueryDescription,
         timeout: Duration,
         cancellation_token: Option<BoxedCancelToken>,
-    ) -> crate::Result<ServicePartitionList> {
-        let com = {
+    ) -> impl FabricFuture<Output = crate::Result<ServicePartitionList>> {
+        let rx = {
             let raw: FABRIC_SERVICE_PARTITION_QUERY_DESCRIPTION = desc.into();
             let mili = timeout.as_millis() as u32;
             self.get_partition_list_internal(&raw, mili, cancellation_token)
-        }
-        .await??;
-        Ok(ServicePartitionList::new(com))
+        };
+        FabricFutureImpl::new(rx, |res| ServicePartitionList::new(res))
     }
 
     pub async fn get_replica_list(
