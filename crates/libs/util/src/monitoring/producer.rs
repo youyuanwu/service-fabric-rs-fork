@@ -11,6 +11,7 @@ use mssf_core::{
     types::{
         ApplicationHealthStatesFilter, ClusterHealthQueryDescription, HealthEventsFilter,
         HealthStateFilterFlags, Node, NodeHealthQueryDescription, NodeHealthStatesFilter,
+        ServicePartitionQueryDescription, Uri,
     },
 };
 use std::time::Duration;
@@ -185,5 +186,30 @@ impl HealthDataProducer {
             .iter()
             .collect::<Vec<_>>();
         Ok(nodes)
+    }
+}
+
+impl HealthDataProducer {
+    async fn get_all_partitions_for_svc(
+        &self,
+        token: BoxedCancelToken,
+        service_name: Uri,
+    ) -> mssf_core::Result<Vec<mssf_core::types::ServicePartitionQueryResult>> {
+        // Logic to get partition information goes here.
+        let desc = ServicePartitionQueryDescription {
+            service_name,
+            partition_id_filter: None,
+        };
+        let partitions = self
+            .fc
+            .get_query_manager()
+            .get_partition_list(&desc, DEFAULT_TIMEOUT, Some(token.clone()))
+            .await
+            .inspect_err(|err| {
+                tracing::error!("Failed to get partition list: {}", err);
+            })?
+            .iter()
+            .collect::<Vec<_>>();
+        Ok(partitions)
     }
 }

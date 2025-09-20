@@ -8,13 +8,14 @@ use mssf_com::{
     FabricClient::{
         IFabricGetDeployedServiceReplicaDetailResult, IFabricGetNodeListResult2,
         IFabricGetPartitionListResult2, IFabricGetPartitionLoadInformationResult,
-        IFabricGetReplicaListResult2, IFabricQueryClient10,
+        IFabricGetReplicaListResult2, IFabricGetServiceListResult2, IFabricQueryClient10,
     },
     FabricTypes::{
         FABRIC_DEPLOYED_SERVICE_REPLICA_DETAIL_QUERY_DESCRIPTION, FABRIC_NODE_QUERY_DESCRIPTION,
         FABRIC_NODE_QUERY_DESCRIPTION_EX1, FABRIC_NODE_QUERY_DESCRIPTION_EX2,
         FABRIC_NODE_QUERY_DESCRIPTION_EX3, FABRIC_PARTITION_LOAD_INFORMATION_QUERY_DESCRIPTION,
-        FABRIC_SERVICE_PARTITION_QUERY_DESCRIPTION, FABRIC_SERVICE_REPLICA_QUERY_DESCRIPTION,
+        FABRIC_SERVICE_PARTITION_QUERY_DESCRIPTION, FABRIC_SERVICE_QUERY_DESCRIPTION,
+        FABRIC_SERVICE_REPLICA_QUERY_DESCRIPTION,
     },
 };
 
@@ -56,6 +57,23 @@ impl QueryClient {
                 com1.BeginGetNodeList(query_description, timeout_milliseconds, callback)
             },
             move |ctx| unsafe { com2.EndGetNodeList2(ctx) },
+            cancellation_token,
+        )
+    }
+
+    fn get_service_list_internal(
+        &self,
+        desc: &FABRIC_SERVICE_QUERY_DESCRIPTION,
+        timeout_milliseconds: u32,
+        cancellation_token: Option<BoxedCancelToken>,
+    ) -> FabricReceiver<crate::WinResult<IFabricGetServiceListResult2>> {
+        let com1 = &self.com;
+        let com2 = self.com.clone();
+        fabric_begin_end_proxy(
+            move |callback| unsafe {
+                com1.BeginGetServiceList(desc, timeout_milliseconds, callback)
+            },
+            move |ctx| unsafe { com2.EndGetServiceList2(ctx) },
             cancellation_token,
         )
     }

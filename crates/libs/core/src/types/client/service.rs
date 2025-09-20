@@ -9,7 +9,9 @@ use mssf_com::FabricTypes::{
     FABRIC_NAMED_REPARTITION_DESCRIPTION, FABRIC_SERVICE_DESCRIPTION,
     FABRIC_SERVICE_DESCRIPTION_KIND_STATEFUL, FABRIC_SERVICE_DESCRIPTION_KIND_STATELESS,
     FABRIC_SERVICE_PARTITION_KIND, FABRIC_SERVICE_PARTITION_KIND_INVALID,
-    FABRIC_SERVICE_PARTITION_KIND_NAMED, FABRIC_SERVICE_UPDATE_DESCRIPTION,
+    FABRIC_SERVICE_PARTITION_KIND_NAMED, FABRIC_SERVICE_QUERY_DESCRIPTION,
+    FABRIC_SERVICE_QUERY_DESCRIPTION_EX1, FABRIC_SERVICE_QUERY_DESCRIPTION_EX2,
+    FABRIC_SERVICE_QUERY_DESCRIPTION_EX3, FABRIC_SERVICE_UPDATE_DESCRIPTION,
     FABRIC_STATEFUL_SERVICE_DESCRIPTION, FABRIC_STATEFUL_SERVICE_DESCRIPTION_EX1,
     FABRIC_STATEFUL_SERVICE_DESCRIPTION_EX2, FABRIC_STATEFUL_SERVICE_DESCRIPTION_EX3,
     FABRIC_STATEFUL_SERVICE_DESCRIPTION_EX4, FABRIC_STATEFUL_SERVICE_UPDATE_DESCRIPTION,
@@ -728,3 +730,65 @@ impl StatefulServiceUpdateDescription {
         }
     }
 }
+
+// FABRIC_SERVICE_QUERY_DESCRIPTION
+pub struct ServiceQueryDescription {
+    pub application_name: Uri,
+    pub service_name_filter: Option<Uri>,
+    pub continuation_token: Option<WString>,
+    pub service_type_name_filter: Option<WString>,
+    pub max_results: Option<i32>,
+}
+
+impl ServiceQueryDescription {
+    pub fn get_raw_parts(
+        &self,
+    ) -> (
+        FABRIC_SERVICE_QUERY_DESCRIPTION,
+        FABRIC_SERVICE_QUERY_DESCRIPTION_EX1,
+        FABRIC_SERVICE_QUERY_DESCRIPTION_EX2,
+        FABRIC_SERVICE_QUERY_DESCRIPTION_EX3,
+    ) {
+        let base = FABRIC_SERVICE_QUERY_DESCRIPTION {
+            ApplicationName: self.application_name.as_raw(),
+            ServiceNameFilter: self
+                .service_name_filter
+                .as_ref()
+                .map_or(Uri::default().as_raw(), |uri| uri.as_raw()),
+            Reserved: std::ptr::null_mut(),
+        };
+        let ex1 = FABRIC_SERVICE_QUERY_DESCRIPTION_EX1 {
+            ContinuationToken: self
+                .continuation_token
+                .as_ref()
+                .map_or(PCWSTR::null(), |s| s.as_pcwstr()),
+            Reserved: std::ptr::null_mut(),
+        };
+        let ex2 = FABRIC_SERVICE_QUERY_DESCRIPTION_EX2 {
+            ServiceTypeNameFilter: self
+                .service_type_name_filter
+                .as_ref()
+                .map_or(PCWSTR::null(), |s| s.as_pcwstr()),
+            Reserved: std::ptr::null_mut(),
+        };
+        let ex3 = FABRIC_SERVICE_QUERY_DESCRIPTION_EX3 {
+            MaxResults: self.max_results.unwrap_or(0), // 0 means no limit
+            Reserved: std::ptr::null_mut(),
+        };
+        (base, ex1, ex2, ex3)
+    }
+}
+
+// IFabricGetServiceListResult
+pub struct ServiceListResult {}
+
+// FABRIC_SERVICE_QUERY_RESULT_ITEM
+pub enum ServiceQueryResultItem {
+    // FABRIC_STATEFUL_SERVICE_QUERY_RESULT_ITEM
+    Stateful(StatefulServiceQueryResultItem),
+    // FABRIC_STATELESS_SERVICE_QUERY_RESULT_ITEM
+    Stateless(StatelessServiceQueryResultItem),
+}
+
+pub struct StatefulServiceQueryResultItem {}
+pub struct StatelessServiceQueryResultItem {}
