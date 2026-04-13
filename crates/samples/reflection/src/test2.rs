@@ -221,7 +221,7 @@ async fn test_resolve_notification() {
         .unwrap();
     sm.delete_service(&uri).await;
 
-    fabric_client_drop_hack(fc).await;
+    // fabric_client_drop_hack(fc).await;
 }
 
 #[tokio::test]
