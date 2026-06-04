@@ -3,6 +3,8 @@
 //! does not need to worry about installing SF lib and linking, which can be complex.
 //!
 
+use std::path::Path;
+
 use mssf_com::{
     FabricClient::{IFabricClientConnectionEventHandler, IFabricServiceNotificationEventHandler},
     FabricCommon::{
@@ -12,6 +14,9 @@ use mssf_com::{
     FabricTypes::{FABRIC_CLIENT_ROLE, FABRIC_LOCAL_STORE_KIND, FABRIC_REPLICATOR_SETTINGS},
 };
 use windows_core::{Interface, Param};
+
+/// If user specifies this env variable, we will try to load SF libs from the path specified by this env variable.
+const MSSF_SF_BIN_PATH_ENV_NAME: &str = "MSSF_SF_BIN_PATH";
 
 lazy_static::lazy_static! {
     static ref LIB_TABLE: LibTable = LibTable::create();
@@ -29,17 +34,40 @@ pub struct LibTable {
 
 impl LibTable {
     fn create() -> Self {
+        // Read the env variable to get SF bin path, and try to load SF libs from that path.
+        // If the env variable is not set or loading from that path fails, fallback to load SF libs from system path.
+        let sf_bin_abs = std::env::var(MSSF_SF_BIN_PATH_ENV_NAME)
+            .ok()
+            .map(std::path::PathBuf::from);
         Self {
-            fabric_runtime: load_lib("FabricRuntime"),
-            fabric_common: load_lib("FabricCommon"),
-            fabric_client: load_lib("FabricClient"),
+            fabric_runtime: load_lib("FabricRuntime", sf_bin_abs.as_deref()),
+            fabric_common: load_lib("FabricCommon", sf_bin_abs.as_deref()),
+            fabric_client: load_lib("FabricClient", sf_bin_abs.as_deref()),
         }
     }
 }
 
-fn load_lib(name: &str) -> libloading::Library {
-    unsafe { libloading::Library::new(libloading::library_filename(name)) }
-        .unwrap_or_else(|e| panic!("cannot load lib {name} :{e}"))
+fn load_lib(name: &str, sf_bin_abs: Option<&Path>) -> libloading::Library {
+    let filename = match sf_bin_abs {
+        Some(path) => path.join(libloading::library_filename(name)),
+        None => libloading::library_filename(name).into(),
+    };
+    // On Windows, loading a DLL by absolute path does not add its directory to the search
+    // path for its own transitive dependencies. Use LOAD_WITH_ALTERED_SEARCH_PATH (0x8) so
+    // that sibling DLLs in the SF bin directory can be resolved.
+    #[cfg(windows)]
+    let lib = {
+        use libloading::os::windows::{LOAD_WITH_ALTERED_SEARCH_PATH, Library};
+        let flags = if sf_bin_abs.is_some() {
+            LOAD_WITH_ALTERED_SEARCH_PATH
+        } else {
+            0
+        };
+        unsafe { Library::load_with_flags(&filename, flags) }.map(libloading::Library::from)
+    };
+    #[cfg(not(windows))]
+    let lib = unsafe { libloading::Library::new(&filename) };
+    lib.unwrap_or_else(|e| panic!("cannot load lib {filename:?} :{e}"))
 }
 
 fn load_fn<T>(lib: &'static libloading::Library, name: &str) -> libloading::Symbol<'static, T> {
